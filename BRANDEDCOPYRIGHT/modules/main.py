@@ -14,33 +14,43 @@ logging.basicConfig(level=logging.INFO,
 FLOOD_LIMIT = 5          # messages
 FLOOD_WINDOW = 10        # seconds
 
-# start text
+# State variables
+enabled_protection = True
+STICKER_BLOCK = True
+APPROVED_USERS = set()
+
+# Start text
 start_txt = """<b>🔱【 𝗦𝐅𝗪 】 𝗦𝗘𝗖𝗨𝗥𝗜𝗧𝗬 𝗥𝗢𝗕𝗢𝗧🔱</b>
 
-Welcome to the ultimate guardian of ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡 — where cutting-edge protection meets premium style.
+Welcome to the ultimate guardian of ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡 — premium protection at your service.
 
-💎 <b>Our Elite Features:</b>
-• 🛡️ 24/7 Anti-Spam & Anti-Abuse Shield  
-• 📝 Copyright Protection & Content Safety  
-• 🤖 AI-Driven Smart Moderation  
-• ⚡ Lightning-Fast Issue Resolution  
-• 🔐 Role-Based Access & Audit Logging  
+💎 <b>Features:</b>
+• 🛡️ Anti-Spam & Abuse
+• 🔗 Anti-Link & Anti-Raid
+• 📚 Leak & PDF Protection
+• 🤖 Smart Moderation
+• ⚡ Fast Issue Resolution
 
-✨ <b>Why Choose Us?</b>
-• Zero Downtime, Constant Vigilance  
-• Custom Rules & Whitelists  
-• VIP Support via @SFW_COMMUNITY @SFW_BotCore
-• Built for Security Connoisseurs  
+✨ <b>Usage:</b>
+• /help - List commands
+• /ping - Bot status
+"""
 
-<b>Ready to elevate your group’s security?</b>  
-Tap any concern or command — and experience premium peace of mind.  
+# Help text
+help_txt = """<b>🛠 Bot Commands:</b>
 
-<b>Powered by ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡</b>"""
+/start - Show welcome message
+/help - Show this help message
+/ping - Check bot status
+/protect on|off - Enable/Disable protections
+/stickerban on|off - Enable/Disable sticker blocking
+/approve <user_id> - Allow exemptions
+/disapprove <user_id> - Remove exemptions
+/approved - List approved users
+"""
 
 # Uptime tracking
 start_time = time.time()
-
-# Flood tracking
 _user_messages = defaultdict(lambda: deque())
 
 # Forbidden keywords list
@@ -72,15 +82,8 @@ async def start_handler(_, msg: Message):
 
 @app.on_callback_query(filters.regex("help_menu"))
 async def help_menu(_, query: CallbackQuery):
-    help_text = """<b>🛠 Bot Commands:</b>
-
-/start - Show welcome
-/help - Show help
-/ping - Bot status
-/protect on|off - Toggle protections
-"""
     await query.message.edit_caption(
-        help_text,
+        help_txt,
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("Back", callback_data="back_to_start")]
         ])
@@ -92,7 +95,11 @@ async def back_to_start(_, query: CallbackQuery):
 
 @app.on_message(filters.command("help"))
 async def help_command(_, msg: Message):
-    await msg.reply(start_txt, quote=True)
+    buttons = [
+        [InlineKeyboardButton("Back to Menu", callback_data="back_to_start")]
+    ]
+    await msg.reply(help_txt, quote=True, reply_markup=InlineKeyboardMarkup(buttons))(_, msg: Message):
+    await msg.reply(help_txt, quote=True)
 
 @app.on_message(filters.command("ping"))
 async def ping_handler(_, msg: Message):
@@ -111,21 +118,58 @@ async def ping_handler(_, msg: Message):
     await msg.reply(reply, quote=True)
     await log_event(app, f"Ping by {msg.from_user.mention}")
 
-# Toggle protection state
-enabled_protection = True
+# Toggle overall protections
 @app.on_message(filters.command("protect") & filters.user(OWNER_ID))
 async def toggle_protection(_, msg: Message):
     global enabled_protection
-    arg = msg.text.split(maxsplit=1)
-    if len(arg) == 2 and arg[1].lower() in ["on", "off"]:
-        enabled_protection = (arg[1].lower() == "on")
-        status = "enabled" if enabled_protection else "disabled"
-        await msg.reply(f"Protection {status}.")
+    args = msg.text.split(maxsplit=1)
+    if len(args) == 2 and args[1].lower() in ["on", "off"]:
+        enabled_protection = args[1].lower() == "on"
+        await msg.reply(f"Protections {'enabled' if enabled_protection else 'disabled'}.")
     else:
         await msg.reply("Usage: /protect on|off")
 
-# Protection checks
-async def check_flood(msg: Message):
+# Toggle sticker blocking
+@app.on_message(filters.command("stickerban") & filters.user(OWNER_ID))
+async def toggle_sticker(_, msg: Message):
+    global STICKER_BLOCK
+    args = msg.text.split(maxsplit=1)
+    if len(args) == 2 and args[1].lower() in ["on", "off"]:
+        STICKER_BLOCK = args[1].lower() == "on"
+        await msg.reply(f"Sticker blocking {'enabled' if STICKER_BLOCK else 'disabled'}.")
+    else:
+        await msg.reply("Usage: /stickerban on|off")
+
+# Approve/disapprove users
+@app.on_message(filters.command("approve") & filters.user(OWNER_ID))
+async def approve_user(_, msg: Message):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /approve <user_id>")
+    try:
+        uid = int(msg.command[1])
+        APPROVED_USERS.add(uid)
+        await msg.reply(f"User {uid} approved.")
+    except:
+        await msg.reply("Invalid user ID.")
+
+@app.on_message(filters.command("disapprove") & filters.user(OWNER_ID))
+async def disapprove_user(_, msg: Message):
+    if len(msg.command) < 2:
+        return await msg.reply("Usage: /disapprove <user_id>")
+    try:
+        uid = int(msg.command[1])
+        APPROVED_USERS.discard(uid)
+        await msg.reply(f"User {uid} disapproved.")
+    except:
+        await msg.reply("Invalid user ID.")
+
+@app.on_message(filters.command("approved") & filters.user(OWNER_ID))
+async def show_approved(_, msg: Message):
+    text = "\n".join(str(uid) for uid in APPROVED_USERS) or "No approved users yet."
+    await msg.reply(f"Approved Users:\n{text}")
+
+# Protection checks helper
+async def check_flood(msg: Message) -> bool:
     dq = _user_messages[msg.from_user.id]
     now = time.time()
     dq.append(now)
@@ -133,72 +177,69 @@ async def check_flood(msg: Message):
         dq.popleft()
     return len(dq) > FLOOD_LIMIT
 
+# Core protection handler
 @app.on_message(filters.group & filters.text)
 async def protection_handler(_, msg: Message):
     if not enabled_protection:
         return
-
+    uid = msg.from_user.id
     text = (msg.text or msg.caption or "").lower()
-
+    if uid in APPROVED_USERS:
+        return
     # Keyword block
     for kw in FORBIDDEN_KEYWORDS:
         if kw in text:
             await msg.delete()
-            warn = f"{msg.from_user.mention}, forbidden content."
-            await msg.reply(warn)
-            await log_event(app, f"Keyword '{kw}' blocked from {msg.from_user.mention}")
+            await msg.reply(f"{msg.from_user.mention}, forbidden content.")
             return
-
     # Link block
     if re.search(r"https?://", text):
         await msg.delete()
-        await msg.reply(f"{msg.from_user.mention}, links are not allowed.")
-        await log_event(app, f"Link blocked from {msg.from_user.mention}")
+        await msg.reply(f"{msg.from_user.mention}, links not allowed.")
         return
-
     # Flood block
     if await check_flood(msg):
         await msg.delete()
-        await msg.reply(f"{msg.from_user.mention}, you're sending too fast.")
-        await log_event(app, f"Flood detected from {msg.from_user.mention}")
+        await msg.reply(f"{msg.from_user.mention}, too many messages.")
         return
-
     # Forward block
     if msg.forward_from or msg.forward_date:
         await msg.delete()
         await msg.reply(f"{msg.from_user.mention}, no forwards allowed.")
-        await log_event(app, f"Forward blocked from {msg.from_user.mention}")
         return
 
-# Prevent edited messages
-@app.on_edited_message(filters.group & ~filters.me)
-async def edited_message(_, msg: Message):
-    await log_event(app, f"Edited msg deleted from {msg.from_user.mention}")
+# Sticker blocker
+@app.on_message(filters.sticker & filters.group)
+async def sticker_blocker(_, msg: Message):
+    if not STICKER_BLOCK or msg.from_user.id in APPROVED_USERS:
+        return
     await msg.delete()
 
-# Prevent long private messages
-def is_long_message(_, msg: Message):
-    return msg.text and len(msg.text.split()) > 10
+# Edited message blocker
+@app.on_edited_message(filters.group)
+async def edited_message(_, msg: Message):
+    if msg.from_user.id in APPROVED_USERS:
+        return
+    await msg.delete()
 
+# Long private message blocker
+def is_long_message(_, msg: Message) -> bool:
+    return msg.text and len(msg.text.split()) > 10
 @app.on_message(filters.private & filters.text & is_long_message)
 async def long_message(_, msg: Message):
     await msg.delete()
-    reply = f"Hey {msg.from_user.mention}, please keep it short!"
-    await app.send_message(msg.chat.id, reply)
-    await log_event(app, f"Long private msg from {msg.from_user.mention}")
+    await msg.reply(f"Hey {msg.from_user.mention}, please keep it short!")
 
 # Block PDF uploads
 @app.on_message(filters.document & filters.group)
 async def block_pdf(_, msg: Message):
     if msg.document.mime_type == "application/pdf":
-        await msg.reply("PDFs are not allowed.")
+        await msg.reply("PDFs not allowed.")
         await msg.delete()
-        await log_event(app, f"PDF blocked from {msg.from_user.mention}")
 
-# Placeholder for media handling
+# Placeholder media
 @app.on_message(filters.media)
 async def media_handler(_, msg: Message):
-    # Optional: scan or log media
     pass
 
 if __name__ == "__main__":
