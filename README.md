@@ -5,7 +5,7 @@
 # 「[ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡](https://t.me/SFW_Community_Official)」
 𝗠𝗮𝗻𝗮𝗴𝗲𝗱 𝗕𝘆: [⚡ 𝗔𝗞𝗔𝗦𝗛 ⚡](https://t.me/BotCasx)
 
-![logo](https://te.legra.ph/file/2e2f78610814092d61103.jpg)
+![logo](https://files.catbox.moe/k5m5ka.jpg)
 
 <a href="https://youtu.be/aPSeonItsWQ">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
