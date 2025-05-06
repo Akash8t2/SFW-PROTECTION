@@ -16,18 +16,23 @@ FLOOD_WINDOW = 10        # seconds
 # start text
 start_txt = """<b>🔱【 𝗦𝐅𝗪 】 𝗦𝗘𝗖𝗨𝗥𝗜𝗧𝗬 𝗥𝗢𝗕𝗢𝗧🔱</b>
 
-Welcome to the ultimate guardian of ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡 — premium protection at your service.
+Welcome to the ultimate guardian of ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡 — where cutting-edge protection meets premium style.
 
-💎 <b>Features:</b>
-• 🛡️ Anti-Spam & Abuse
-• 🔗 Anti-Link & Anti-Raid
-• 📚 Leak & PDF Protection
-• 🤖 Smart Moderation
-• ⚡ Fast Issue Resolution
+💎 <b>Our Elite Features:</b>
+• 🛡️ 24/7 Anti-Spam & Anti-Abuse Shield  
+• 📝 Copyright Protection & Content Safety  
+• 🤖 AI-Driven Smart Moderation  
+• ⚡ Lightning-Fast Issue Resolution  
+• 🔐 Role-Based Access & Audit Logging  
 
-✨ <b>Usage:</b>
-• /help - List commands
-• /ping - Bot status
+✨ <b>Why Choose Us?</b>
+• Zero Downtime, Constant Vigilance  
+• Custom Rules & Whitelists  
+• VIP Support via @SFW_COMMUNITY @SFW_BotCore
+• Built for Security Connoisseurs  
+
+<b>Ready to elevate your group’s security?</b>  
+Tap any concern or command — and experience premium peace of mind.  
 
 <b>Powered by ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡</b>"""
 
