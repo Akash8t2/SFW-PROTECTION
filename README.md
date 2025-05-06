@@ -1,4 +1,4 @@
-<a href="https://youtu.be/aPSeonItsWQ">
+<a href="">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 </a>
 
@@ -7,7 +7,7 @@
 
 ![logo](https://files.catbox.moe/k5m5ka.jpg)
 
-<a href="https://youtu.be/aPSeonItsWQ">
+<a href="">
   <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 </a>
 
