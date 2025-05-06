@@ -21,11 +21,27 @@ from pyrogram.errors import FloodWait
 # -------------------------------------------------------------------------------------
 
 
-start_txt = """<b> 🦋 𝐁𝐫𝐚𝐧𝐝𝐞𝐝 𝐒𝐞𝐜𝐮𝐫𝐢𝐭𝐲 𝐑𝐨𝐛𝐨𝐭 ❤️ </b>
+start_txt = """<b>🔱【 𝗦𝐅𝗪 】 𝗦𝗘𝗖𝗨𝗥𝗜𝗧𝗬 𝗥𝗢𝗕𝗢𝗧🔱</b>
 
-ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ʙʀᴀɴᴅᴇᴅ sᴇᴄᴜʀɪᴛʏ ʀᴏʙᴏᴛ, ʏᴏᴜʀ ᴠɪɢɪʟᴀɴᴛ ɢᴜᴀʀᴇɪɴ ɪɴ ᴛʜɪs ᴛᴇʟᴇɢʀᴀᴍ sᴘᴀᴄᴇ! ᴏᴜʀ ᴍɪssɪᴏɴ ɪs ᴛᴏ ᴇɴsᴜʀᴇ ᴀ sᴇᴄᴜʀᴇ ᴀɴᴅ ᴘʟᴇᴀsᴀɴᴛ ᴇɴᴠɪʀᴏɴᴍᴇɴᴛ ғᴏʀ ᴇᴠᴇʀʏᴏɴᴇ. ғʀᴏᴍ ᴄᴏᴘʏʀɪɢʜᴛ ᴘʀᴏᴛᴇᴄᴛ𝂢ɪᴏɴ ᴛᴏ ᴍᴀɪɴᴛᴀɪɴɪɴɢ ᴅᴇᴄᴏʀᴜᴍ, ᴡᴇ'ᴠᴇ ɢᴏᴛ ɪᴛ ᴄᴏᴠᴇʀᴇᴅ.
+Welcome to the ultimate guardian of ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡 — where cutting-edge protection meets premium style.
 
-ғᴇᴇʟ ғʀᴇᴇ ᴛᴏ ʀᴇᴘᴏʀᴛ ᴀɴʏ ᴄᴏɴᴄᴇʀɴs, ᴀɴᴅ ʟᴇᴛ's ᴡᴏʀᴋ ᴛᴏɢᴇᴛʜᴇʀ ᴛᴏ ᴍᴀᴋᴇ ᴛʜɪs ᴄᴏᴍᴍᴜɴɪᴛʏ ᴛʜʀɪᴠᴇ! 🤝🔐 """
+💎 <b>Our Elite Features:</b>
+• 🛡️ 24/7 Anti-Spam & Anti-Abuse Shield  
+• 📝 Copyright Protection & Content Safety  
+• 🤖 AI-Driven Smart Moderation  
+• ⚡ Lightning-Fast Issue Resolution  
+• 🔐 Role-Based Access & Audit Logging  
+
+✨ <b>Why Choose Us?</b>
+• Zero Downtime, Constant Vigilance  
+• Custom Rules & Whitelists  
+• VIP Support via @SFW_COMMUNITY @SFW_BotCore
+• Built for Security Connoisseurs  
+
+<b>Ready to elevate your group’s security?</b>  
+Tap any concern or command — and experience premium peace of mind.  
+
+<b>Powered by ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡</b>"""
 
 @app.on_message(filters.command("start"))
 async def start(_, msg):
@@ -111,8 +127,11 @@ async def activevc(_, message: Message):
 
 
 
-FORBIDDEN_KEYWORDS = ["porn", "xxx", "sex", "NCERT", "XII", "page", "Ans", "meiotic", "divisions", "System.in", "Scanner", "void", "nextInt"]
-
+FORBIDDEN_KEYWORDS = [
+    "porn", "xxx", "sex", "NCERT", "XII", "page", "Ans", 
+    "meiotic", "divisions", "System.in", "Scanner", "void", 
+    "nextInt", "fuck", "nude", "class 12", "exam leak"
+]
 @app.on_message()
 async def handle_message(client, message):
     if any(keyword in message.text for keyword in FORBIDDEN_KEYWORDS):
@@ -158,7 +177,7 @@ async def keep_reaction_message(client, message: Message):
 
 async def delete_pdf_files(client, message):
     if message.document and message.document.mime_type == "application/pdf":
-        warning_message = f"@{message.from_user.username} ᴍᴀᴀ ᴍᴀᴛ ᴄʜᴜᴅᴀ ᴘᴅғ ʙʜᴇᴊ ᴋᴇ,\n ʙʜᴏsᴀᴅɪᴋᴇ ᴄᴏᴘʏʀɪɢʜᴛ ʟᴀɢʏᴇɢᴀ \n\n ᴅᴇʟᴇᴛᴇ ᴋᴀʀ ᴅɪʏᴀ ᴍᴀᴅᴀʀᴄʜᴏᴅ.\n\n ᴀʙ @BRANDEDKING82 ʙʜᴀɪ ᴋᴇ ᴅᴍ ᴍᴇ ᴀᴘɴɪ ᴍᴜᴍᴍʏ ᴋᴏ ʙʜᴇᴊ ᴅᴇ 🍌🍌🍌."
+        warning_message = f"@{message.from_user.username} ᴍᴀᴀ ᴍᴀᴛ ᴄʜᴜᴅᴀ ᴘᴅғ ʙʜᴇᴊ ᴋᴇ,\n ʙʜᴏsᴀᴅɪᴋᴇ ᴄᴏᴘʏʀɪɢʜᴛ ʟᴀɢʏᴇɢᴀ \n\n ᴅᴇʟᴇᴛᴇ ᴋᴀʀ ᴅɪʏᴀ ᴍᴀᴅᴀʀᴄʜᴏᴅ.\n\n ᴀʙ @BotCasx ʙʜᴀɪ ᴋᴇ ᴅᴍ ᴍᴇ ᴀᴘɴɪ ᴍᴜᴍᴍʏ ᴋᴏ ʙʜᴇᴊ ᴅᴇ 🍌🍌🍌."
         await message.reply_text(warning_message)
         await message.delete()
     else:  
