@@ -1,23 +1,33 @@
-<a href="https://youtu.be/aPSeonItsWQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
-# 「[𝗞𝗜𝗡𝗚 𝗫 𝗧𝗘𝗔𝗠 𝗕𝗥𝗔𝗡𝗗𝗘𝗗❤️💣](https://t.me/BRANDRD_BOT)」
-Mᴀɴᴀɢᴇᴅ Bʏ: [❤️ 𝗕𝗥𝗔𝗡𝗗𝗘𝗗 ✘ 𝗞𝗜𝗡𝗚 ❤️](https://t.me/BRANDEDKING82)
+<a href="https://youtu.be/aPSeonItsWQ">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+</a>
 
-
+# 「[ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡](https://t.me/SFW_Community_Official)」
+𝗠𝗮𝗻𝗮𝗴𝗲𝗱 𝗕𝘆: [⚡ 𝗔𝗞𝗔𝗦𝗛 ⚡](https://t.me/BotCasx)
 
 ![logo](https://te.legra.ph/file/2e2f78610814092d61103.jpg)
-<a href="https://https://youtu.be/aPSeonItsWQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
-
+<a href="https://youtu.be/aPSeonItsWQ">
+  <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
+</a>
 
 # Hᴏsᴛɪɴɢ
 
-  <img src="https://readme-typing-svg.herokuapp.com?color=F77247&width=420&lines=𝙷𝚘𝚠+𝚃𝚘+𝙳𝚎𝚙𝚕𝚘𝚢+KING 𝚇 𝚃𝙴𝙰𝙼 BRANDED+𝚂𝚘𝚞𝚛𝚌𝚎;𝙷𝚘𝚠+𝚃𝚘+𝙳𝚎𝚙𝚕𝚘𝚢+DeadlySpamBot+𝚂𝚘𝚞𝚛𝚌𝚎%E2%9D%A4%EF%B8%8F">
+<img src="https://readme-typing-svg.herokuapp.com?color=FFD700&width=420&lines=𝙷𝚘𝚠+𝚃𝚘+𝙳𝚎𝚙𝚕𝚘𝚢+SFW+𝚂𝚎𝚌𝚞𝚛𝚒𝚝𝚢+𝙱𝚘𝚝;𝙰+𝙿𝚛𝚘𝚏𝚎𝚜𝚜𝚒𝚘𝚗𝚊𝚕+𝚂𝚎𝚌𝚞𝚛𝚒𝚝𝚢+𝚂𝚘𝚕𝚞𝚝𝚒𝚘𝚗+𝚏𝚘𝚛+𝚃𝚎𝚕𝚎𝚐𝚛𝚊𝚖+𝙶𝚛𝚘𝚞𝚙𝚜%E2%9C%94%EF%B8%8F" />
+
+---
+
+### ─「 ᴅᴇᴩʟᴏʏ ᴏɴ ʜᴇʀᴏᴋᴜ 」─
+
+<p align="center">
+  <a href="https://heroku.com/deploy?template=https://github.com/Akash8t2/SFW-PROTECTION">
+    <img src="https://img.shields.io/badge/SFW%20Deploy%20On%20Heroku-Black?style=for-the-badge&logo=heroku" width="220" height="38.45"/>
+  </a>
 </p>
 
+---
 
-###    ─「 ᴅᴇᴩʟᴏʏ ᴏɴ ʜᴇʀᴏᴋᴜ 」─
+𝗠𝗮𝗻𝗮𝗴𝗲𝗱 𝗕𝘆: [⚡ 𝗔𝗞𝗔𝗦𝗛 ⚡](https://t.me/BotCasx)  
+𝗢𝗳𝗳𝗶𝗰𝗶𝗮𝗹 𝗛𝗼𝗺𝗲: [ミ【 𝗦𝐅𝗪 】𝗖𝗢𝗠𝗠𝗨𝗡𝗜𝗧𝗬 彡](https://t.me/SFW_Community_Official)
 
-<p align="center"><a href="https://heroku.com/deploy?template=https://github.com/WCGKING/BRANDEDCOPYRIGHT"> <img src="https://img.shields.io/badge/Deadly%20On%20Heroku-Blue?style=for-the-badge&logo=heroku" width="220" height="38.45"/></a></p>
-
-
-Mᴀɴᴀɢᴇᴅ Bʏ: [❤️ 𝗕𝗥𝗔𝗡𝗗𝗘𝗗 ✘ 𝗞𝗜𝗡𝗚 ❤️](https://t.me/BRANDED_PAID_CC)
+---
