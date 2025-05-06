@@ -98,8 +98,7 @@ async def help_command(_, msg: Message):
     buttons = [
         [InlineKeyboardButton("Back to Menu", callback_data="back_to_start")]
     ]
-    await msg.reply(help_txt, quote=True, reply_markup=InlineKeyboardMarkup(buttons))(_, msg: Message):
-    await msg.reply(help_txt, quote=True)
+    await msg.reply(help_txt, quote=True, reply_markup=InlineKeyboardMarkup(buttons))
 
 @app.on_message(filters.command("ping"))
 async def ping_handler(_, msg: Message):
@@ -225,6 +224,7 @@ async def edited_message(_, msg: Message):
 # Long private message blocker
 def is_long_message(_, msg: Message) -> bool:
     return msg.text and len(msg.text.split()) > 10
+
 @app.on_message(filters.private & filters.text & is_long_message)
 async def long_message(_, msg: Message):
     await msg.delete()
@@ -244,4 +244,3 @@ async def media_handler(_, msg: Message):
 
 if __name__ == "__main__":
     app.run()
-
