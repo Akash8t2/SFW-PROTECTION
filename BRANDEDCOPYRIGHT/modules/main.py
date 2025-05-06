@@ -2,6 +2,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message
 import os, time, psutil, platform, logging, re
 from collections import defaultdict, deque
+from BRANDEDCOPYRIGHT.helper.utils import time_formatter
 from config import OWNER_ID, BOT_USERNAME, LOG_CHANNEL
 from BRANDEDCOPYRIGHT import BRANDEDCOPYRIGHT as app
 
