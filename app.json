@@ -11,6 +11,10 @@
       "description": "Your Telegram API Hash",
       "required": true
     },
+    "LOG_CHANNEL": {
+      "description": "Your Telegram Channel Id",
+      "required": true
+    },
     "BOT_TOKEN": {
       "description": "Your Telegram Bot Token",
       "required": true
