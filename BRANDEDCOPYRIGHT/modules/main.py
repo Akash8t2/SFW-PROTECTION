@@ -17,7 +17,7 @@ from BRANDEDCOPYRIGHT import BRANDEDCOPYRIGHT as app
 from BRANDEDCOPYRIGHT.helper.utils import time_formatter
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+tlogging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Constants
 FLOOD_LIMIT = 5      # max messages
@@ -111,7 +111,11 @@ async def back_to_start(_, query: CallbackQuery):
 @app.on_message(filters.command("help"))
 async def help_command(_, msg: Message):
     buttons = [[InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]]
-    await msg.reply(help_txt, quote=True, reply_markup=InlineKeyboardMarkup(buttons))
+    await msg.reply(
+        help_txt,
+        quote=True,
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
 
 # /ping command
 @app.on_message(filters.command("ping"))
@@ -279,7 +283,9 @@ async def long_message(_, msg: Message):
 async def block_pdf(_, msg: Message):
     if msg.document.mime_type == "application/pdf":
         await msg.reply("PDFs are not allowed here.")
-        await msg.delete()
+        return await msg.delete()
 
 if __name__ == "__main__":
     app.run()
+
+
