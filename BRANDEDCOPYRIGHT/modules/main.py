@@ -51,15 +51,22 @@ async def log_event(client: Client, text: str, msg: Message = None):
         logger.error(f"Failed to log event: {e}")
 
 async def is_admin(client: Client, chat_id: int, user_id: int) -> bool:
-    """Enhanced admin check with proper error handling"""
+    """Enhanced admin check with anonymous support"""
     try:
         if user_id == OWNER_ID:
             return True
-            
+
         member = await client.get_chat_member(chat_id, user_id)
-        return member.status in ("creator", "administrator")
+        logger.info(f"Admin Check Result: {member}")
+        
+        # Handle all admin types
+        return any([
+            member.status in ("creator", "administrator"),
+            getattr(member, "is_anonymous", False),
+            (member.user and member.user.is_self)
+        ])
     except Exception as e:
-        logger.error(f"Admin check failed for {user_id} in {chat_id}: {e}")
+        logger.error(f"Admin check error: {str(e)}")
         return False
 
 # Start & Help texts
@@ -192,13 +199,19 @@ def check_flood(user_id: int) -> bool:
     
     return len(_user_messages[user_id]) > FLOOD_LIMIT
 
-@app.on_message(filters.group & (filters.text | filters.caption))
-async def message_protection(client: Message, msg: Message):
-    if not enabled_protection:
+@app.on_message(filters.group & (filters.text | filters.caption | filters.edited))
+async def message_protection(client: Client, msg: Message):
+    if not enabled_protection or msg.from_user.is_bot:
         return
     
     # Skip if approved user or admin
     if msg.from_user.id in APPROVED_USERS[msg.chat.id] or await is_admin(client, msg.chat.id, msg.from_user.id):
+        return
+    
+    # Handle edited messages
+    if msg.edit_date:
+        await msg.delete()
+        await log_event(client, "Deleted edited message", msg)
         return
     
     text = (msg.text or msg.caption or "").lower()
