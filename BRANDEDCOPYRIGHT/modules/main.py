@@ -6,7 +6,7 @@ from pyrogram.types import (
     CallbackQuery,
     Message,
 )
-from pyrogram.enums import ChatMemberStatus  # नया इम्पोर्ट
+from pyrogram.enums import ChatMemberStatus
 import time
 import psutil
 import platform
@@ -52,22 +52,18 @@ async def log_event(client: Client, text: str, msg: Message = None):
         logger.error(f"Failed to log event: {e}")
 
 async def is_admin(client: Client, chat_id: int, user_id: int) -> bool:
-    """Pyrogram v2+ compatible admin check"""
+    """Check if user is admin/owner with Pyrogram v2+"""
     try:
         if user_id == OWNER_ID:
+            logger.info(f"User {user_id} is owner")
             return True
 
         member = await client.get_chat_member(chat_id, user_id)
-        logger.info(f"Admin Check: {member}")
+        logger.info(f"Admin Check: {member.status} for {user_id}")
         
-        # Enum-based status check
-        return any([
-            member.status in (ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR),
-            getattr(member, "is_anonymous", False),
-            (member.user and member.user.is_self)
-        ])
+        return member.status in (ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR)
     except Exception as e:
-        logger.error(f"Admin check failed: {e}")
+        logger.error(f"Admin check error: {e}")
         return False
 
 # Start & Help texts
@@ -146,25 +142,17 @@ async def ping_handler(_, msg: Message):
 async def toggle_protection(client: Client, msg: Message):
     global enabled_protection
     
-    logger.info(f"Protect command by {msg.from_user.id}")
-    
     if not await is_admin(client, msg.chat.id, msg.from_user.id):
         return await msg.reply("❌ You need admin rights!")
     
     args = msg.text.split()
     if len(args) == 2:
-        if args[1].lower() == "on":
-            enabled_protection = True
-            await msg.reply("🛡️ Protection enabled!")
-            await log_event(app, "Protection ON", msg)
-        elif args[1].lower() == "off":
-            enabled_protection = False
-            await msg.reply("⚠️ Protection disabled!")
-            await log_event(app, "Protection OFF", msg)
-        else:
-            await msg.reply("Usage: /protect on|off")
+        enabled_protection = args[1].lower() == "on"
+        status = "🛡️ Enabled" if enabled_protection else "⚠️ Disabled"
+        await msg.reply(f"{status} protection!")
+        await log_event(client, f"Protection {status}", msg)
     else:
-        await msg.reply(f"Status: {'ENABLED' if enabled_protection else 'DISABLED'}\nUsage: /protect on|off")
+        await msg.reply(f"Current status: {'ENABLED' if enabled_protection else 'DISABLED'}\nUsage: /protect on|off")
 
 @app.on_message(filters.command("stickerban") & filters.group)
 async def toggle_sticker(client: Client, msg: Message):
@@ -176,8 +164,8 @@ async def toggle_sticker(client: Client, msg: Message):
     args = msg.text.split()
     if len(args) == 2:
         STICKER_BLOCK = args[1].lower() == "on"
-        status = "enabled" if STICKER_BLOCK else "disabled"
-        await msg.reply(f"✅ Sticker blocking {status}!")
+        status = "✅ Enabled" if STICKER_BLOCK else "❌ Disabled"
+        await msg.reply(f"{status} sticker blocking!")
     else:
         await msg.reply(f"Current: {'ENABLED' if STICKER_BLOCK else 'DISABLED'}\nUsage: /stickerban on|off")
 
@@ -192,18 +180,13 @@ def check_flood(user_id: int) -> bool:
     return len(q) > FLOOD_LIMIT
 
 @app.on_message(filters.group & (filters.text | filters.caption))
-@app.on_edited_message(filters.group & (filters.text | filters.caption))
 async def message_protection(client: Client, msg: Message):
     if not enabled_protection or msg.from_user.is_bot:
         return
     
-    if msg.from_user.id in APPROVED_USERS[msg.chat.id] or await is_admin(client, msg.chat.id, msg.from_user.id):
-        return
-    
-    # Delete edited messages
-    if msg.edit_date:
-        await msg.delete()
-        await log_event(client, "Deleted edited message", msg)
+    approved = APPROVED_USERS.get(msg.chat.id, set())
+    if msg.from_user.id in approved or await is_admin(client, msg.chat.id, msg.from_user.id):
+        logger.info(f"Skipping approved/admin user: {msg.from_user.id}")
         return
     
     text = (msg.text or msg.caption or "").lower()
@@ -225,12 +208,25 @@ async def message_protection(client: Client, msg: Message):
         await msg.delete()
         await log_event(client, "Deleted flood", msg)
 
+@app.on_edited_message(filters.group & (filters.text | filters.caption))
+async def edited_message_protection(client: Client, msg: Message):
+    if not enabled_protection or msg.from_user.is_bot:
+        return
+    
+    approved = APPROVED_USERS.get(msg.chat.id, set())
+    if msg.from_user.id in approved or await is_admin(client, msg.chat.id, msg.from_user.id):
+        logger.info(f"Skipping edit from approved/admin: {msg.from_user.id}")
+        return
+    
+    await msg.delete()
+    await log_event(client, "Deleted edited message", msg)
+
 @app.on_message(filters.sticker & filters.group)
 async def sticker_handler(client: Client, msg: Message):
-    if STICKER_BLOCK and msg.from_user.id not in APPROVED_USERS[msg.chat.id]:
+    if STICKER_BLOCK and msg.from_user.id not in APPROVED_USERS.get(msg.chat.id, set()):
         await msg.delete()
         await log_event(client, "Deleted sticker", msg)
 
 if __name__ == "__main__":
-    logger.info("Starting SFW Protection Bot...")
+    logger.info("🚀 Starting SFW Protection Bot...")
     app.run()
