@@ -101,7 +101,7 @@ async def start_handler(_, msg: Message):
         [InlineKeyboardButton("🛠 Help", callback_data="help_menu")]
     ]
     await msg.reply_photo(
-        photo="https://te.legra.ph/file/344c96cb9c3ce0777fba3.jpg",
+        photo="https://files.catbox.moe/kirzpo.jpg",
         caption=start_txt,
         reply_markup=InlineKeyboardMarkup(buttons)
     )
