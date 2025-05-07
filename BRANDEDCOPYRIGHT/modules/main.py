@@ -36,9 +36,11 @@ FORBIDDEN_KEYWORDS = [
 # State variables
 enabled_protection = True
 STICKER_BLOCK = True
-APPROVED_USERS = defaultdict(set)
+APPROVED_USERS = defaultdict(set)  # Format: {chat_id: {user1, user2}}
 start_time = time.time()
 _user_messages = defaultdict(lambda: deque())
+
+# ================= HELPER FUNCTIONS ================= #
 
 async def log_event(client: Client, text: str, msg: Message = None):
     log_text = f"📝 {text}"
@@ -52,21 +54,23 @@ async def log_event(client: Client, text: str, msg: Message = None):
         logger.error(f"Failed to log event: {e}")
 
 async def is_admin(client: Client, chat_id: int, user_id: int) -> bool:
-    """Check if user is admin/owner with Pyrogram v2+"""
+    """Check if user is admin/owner in the specific group"""
     try:
         if user_id == OWNER_ID:
-            logger.info(f"User {user_id} is owner")
             return True
 
         member = await client.get_chat_member(chat_id, user_id)
-        logger.info(f"Admin Check: {member.status} for {user_id}")
-        
         return member.status in (ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR)
     except Exception as e:
         logger.error(f"Admin check error: {e}")
         return False
 
-# Start & Help texts
+async def is_approved_or_admin(client: Client, chat_id: int, user_id: int) -> bool:
+    """Check if user is approved or admin in the specific group"""
+    return user_id in APPROVED_USERS.get(chat_id, set()) or await is_admin(client, chat_id, user_id)
+
+# ================= COMMAND HANDLERS ================= #
+
 start_txt = """<b>🔱【 𝗦𝐅𝗪 】 𝗣𝗥𝗢𝗧𝗘𝗖𝗧𝗜𝗢𝗡 🔱</b>
 
 Protect your community with premium guard at your service.
@@ -90,8 +94,6 @@ help_txt = """<b>🛠 Bot Commands:</b>
 /approved - List approved users
 """
 
-# ================= COMMAND HANDLERS ================= #
-
 @app.on_message(filters.command("start"))
 async def start_handler(_, msg: Message):
     buttons = [
@@ -108,9 +110,7 @@ async def start_handler(_, msg: Message):
 async def help_menu(_, query: CallbackQuery):
     await query.message.edit_caption(
         help_txt,
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]
-        ])
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]])
     )
 
 @app.on_callback_query(filters.regex("back_to_start"))
@@ -136,20 +136,58 @@ async def ping_handler(_, msg: Message):
     await msg.reply(reply)
     await log_event(app, "Ping command used", msg)
 
-# ================= ADMIN COMMANDS ================= #
+@app.on_message(filters.command("approve") & filters.group)
+async def approve_user(client: Client, msg: Message):
+    try:
+        chat_id = msg.chat.id
+        if msg.reply_to_message:
+            user_id = msg.reply_to_message.from_user.id
+        else:
+            user = msg.text.split()[1].strip()
+            if user.startswith("@"):
+                user_obj = await client.get_users(user)
+                user_id = user_obj.id
+            else:
+                user_id = int(user)
+        
+        APPROVED_USERS[chat_id].add(user_id)
+        await msg.reply(f"✅ User {user_id} approved in THIS GROUP!")
+        logger.info(f"Approved {user_id} in Chat {chat_id}")
+    except Exception as e:
+        await msg.reply("❌ Usage: /approve @username or reply to user")
+
+@app.on_message(filters.command("disapprove") & filters.group)
+async def disapprove_user(client: Client, msg: Message):
+    try:
+        chat_id = msg.chat.id
+        if msg.reply_to_message:
+            user_id = msg.reply_to_message.from_user.id
+        else:
+            user_id = int(msg.text.split()[1])
+        
+        APPROVED_USERS[chat_id].discard(user_id)
+        await msg.reply(f"❌ User {user_id} disapproved!")
+    except Exception as e:
+        await msg.reply("❌ Usage: /disapprove @username or reply to user")
+
+@app.on_message(filters.command("approved") & filters.group)
+async def show_approved(_, msg: Message):
+    chat_id = msg.chat.id
+    approved = APPROVED_USERS.get(chat_id, set())
+    text = "Approved Users:\n" + "\n".join(str(u) for u in approved) if approved else "No approved users"
+    await msg.reply(text)
 
 @app.on_message(filters.command("protect") & filters.group)
 async def toggle_protection(client: Client, msg: Message):
     global enabled_protection
-    
     if not await is_admin(client, msg.chat.id, msg.from_user.id):
-        return await msg.reply("❌ You need admin rights!")
+        return await msg.reply("❌ Admin rights required!")
     
     args = msg.text.split()
     if len(args) == 2:
         enabled_protection = args[1].lower() == "on"
-        status = "🛡️ Enabled" if enabled_protection else "⚠️ Disabled"
-        await msg.reply(f"{status} protection!")
+        status = "ENABLED" if enabled_protection else "DISABLED"
+        await msg.reply(f"🛡️ Protection {status}!")
         await log_event(client, f"Protection {status}", msg)
     else:
         await msg.reply(f"Current status: {'ENABLED' if enabled_protection else 'DISABLED'}\nUsage: /protect on|off")
@@ -157,17 +195,16 @@ async def toggle_protection(client: Client, msg: Message):
 @app.on_message(filters.command("stickerban") & filters.group)
 async def toggle_sticker(client: Client, msg: Message):
     global STICKER_BLOCK
-    
     if not await is_admin(client, msg.chat.id, msg.from_user.id):
         return await msg.reply("❌ Admin rights required!")
     
     args = msg.text.split()
     if len(args) == 2:
         STICKER_BLOCK = args[1].lower() == "on"
-        status = "✅ Enabled" if STICKER_BLOCK else "❌ Disabled"
-        await msg.reply(f"{status} sticker blocking!")
+        status = "ENABLED" if STICKER_BLOCK else "DISABLED"
+        await msg.reply(f"🛡️ Sticker blocking {status}!")
     else:
-        await msg.reply(f"Current: {'ENABLED' if STICKER_BLOCK else 'DISABLED'}\nUsage: /stickerban on|off")
+        await msg.reply(f"Current status: {'ENABLED' if STICKER_BLOCK else 'DISABLED'}\nUsage: /stickerban on|off")
 
 # ================= PROTECTION LOGIC ================= #
 
@@ -184,9 +221,11 @@ async def message_protection(client: Client, msg: Message):
     if not enabled_protection or msg.from_user.is_bot:
         return
     
-    approved = APPROVED_USERS.get(msg.chat.id, set())
-    if msg.from_user.id in approved or await is_admin(client, msg.chat.id, msg.from_user.id):
-        logger.info(f"Skipping approved/admin user: {msg.from_user.id}")
+    chat_id = msg.chat.id
+    user_id = msg.from_user.id
+    
+    if await is_approved_or_admin(client, chat_id, user_id):
+        logger.info(f"Skipping approved/admin: {user_id} in {chat_id}")
         return
     
     text = (msg.text or msg.caption or "").lower()
@@ -204,7 +243,7 @@ async def message_protection(client: Client, msg: Message):
         return
     
     # Flood check
-    if check_flood(msg.from_user.id):
+    if check_flood(user_id):
         await msg.delete()
         await log_event(client, "Deleted flood", msg)
 
@@ -213,9 +252,11 @@ async def edited_message_protection(client: Client, msg: Message):
     if not enabled_protection or msg.from_user.is_bot:
         return
     
-    approved = APPROVED_USERS.get(msg.chat.id, set())
-    if msg.from_user.id in approved or await is_admin(client, msg.chat.id, msg.from_user.id):
-        logger.info(f"Skipping edit from approved/admin: {msg.from_user.id}")
+    chat_id = msg.chat.id
+    user_id = msg.from_user.id
+    
+    if await is_approved_or_admin(client, chat_id, user_id):
+        logger.info(f"Skipping edit from approved/admin: {user_id} in {chat_id}")
         return
     
     await msg.delete()
@@ -223,10 +264,17 @@ async def edited_message_protection(client: Client, msg: Message):
 
 @app.on_message(filters.sticker & filters.group)
 async def sticker_handler(client: Client, msg: Message):
-    if STICKER_BLOCK and msg.from_user.id not in APPROVED_USERS.get(msg.chat.id, set()):
+    if STICKER_BLOCK:
+        chat_id = msg.chat.id
+        user_id = msg.from_user.id
+        
+        if await is_approved_or_admin(client, chat_id, user_id):
+            logger.info(f"Skipping sticker from approved/admin: {user_id} in {chat_id}")
+            return
+        
         await msg.delete()
         await log_event(client, "Deleted sticker", msg)
 
 if __name__ == "__main__":
-    logger.info("🚀 Starting SFW Protection Bot...")
+    logger.info("🚀 SFW Protection Bot Started!")
     app.run()
