@@ -1,3 +1,4 @@
+import logging
 from pyrogram import Client, filters
 from pyrogram.types import (
     InlineKeyboardButton,
@@ -17,7 +18,7 @@ from BRANDEDCOPYRIGHT import BRANDEDCOPYRIGHT as app
 from BRANDEDCOPYRIGHT.helper.utils import time_formatter
 
 # Configure logging
-tlogging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Constants
 FLOOD_LIMIT = 5      # max messages
