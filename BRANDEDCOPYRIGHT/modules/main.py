@@ -6,6 +6,7 @@ from pyrogram.types import (
     CallbackQuery,
     Message,
 )
+from pyrogram.enums import ChatMemberStatus  # नया इम्पोर्ट
 import time
 import psutil
 import platform
@@ -51,21 +52,22 @@ async def log_event(client: Client, text: str, msg: Message = None):
         logger.error(f"Failed to log event: {e}")
 
 async def is_admin(client: Client, chat_id: int, user_id: int) -> bool:
-    """Enhanced admin check with anonymous support"""
+    """Pyrogram v2+ compatible admin check"""
     try:
         if user_id == OWNER_ID:
             return True
 
         member = await client.get_chat_member(chat_id, user_id)
-        logger.info(f"Admin Check Result: {member}")
+        logger.info(f"Admin Check: {member}")
         
+        # Enum-based status check
         return any([
-            member.status in ("creator", "administrator"),
+            member.status in (ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR),
             getattr(member, "is_anonymous", False),
             (member.user and member.user.is_self)
         ])
     except Exception as e:
-        logger.error(f"Admin check error: {str(e)}")
+        logger.error(f"Admin check failed: {e}")
         return False
 
 # Start & Help texts
@@ -144,59 +146,50 @@ async def ping_handler(_, msg: Message):
 async def toggle_protection(client: Client, msg: Message):
     global enabled_protection
     
-    logger.info(f"Protect command used by {msg.from_user.id} in {msg.chat.id}")
+    logger.info(f"Protect command by {msg.from_user.id}")
     
     if not await is_admin(client, msg.chat.id, msg.from_user.id):
-        logger.warning(f"Unauthorized access attempt by {msg.from_user.id}")
-        return await msg.reply("❌ You need admin rights to use this.")
+        return await msg.reply("❌ You need admin rights!")
     
     args = msg.text.split()
     if len(args) == 2:
         if args[1].lower() == "on":
             enabled_protection = True
             await msg.reply("🛡️ Protection enabled!")
-            await log_event(app, "Protection enabled", msg)
+            await log_event(app, "Protection ON", msg)
         elif args[1].lower() == "off":
             enabled_protection = False
             await msg.reply("⚠️ Protection disabled!")
-            await log_event(app, "Protection disabled", msg)
+            await log_event(app, "Protection OFF", msg)
         else:
             await msg.reply("Usage: /protect on|off")
     else:
-        await msg.reply(f"Current status: {'ENABLED' if enabled_protection else 'DISABLED'}\nUsage: /protect on|off")
+        await msg.reply(f"Status: {'ENABLED' if enabled_protection else 'DISABLED'}\nUsage: /protect on|off")
 
 @app.on_message(filters.command("stickerban") & filters.group)
 async def toggle_sticker(client: Client, msg: Message):
     global STICKER_BLOCK
     
     if not await is_admin(client, msg.chat.id, msg.from_user.id):
-        return await msg.reply("❌ You need admin rights to use this.")
+        return await msg.reply("❌ Admin rights required!")
     
     args = msg.text.split()
     if len(args) == 2:
-        if args[1].lower() == "on":
-            STICKER_BLOCK = True
-            await msg.reply("✅ Sticker blocking enabled!")
-        elif args[1].lower() == "off":
-            STICKER_BLOCK = False
-            await msg.reply("❌ Sticker blocking disabled!")
-        else:
-            await msg.reply("Usage: /stickerban on|off")
+        STICKER_BLOCK = args[1].lower() == "on"
+        status = "enabled" if STICKER_BLOCK else "disabled"
+        await msg.reply(f"✅ Sticker blocking {status}!")
     else:
-        await msg.reply(f"Current status: {'ENABLED' if STICKER_BLOCK else 'DISABLED'}\nUsage: /stickerban on|off")
+        await msg.reply(f"Current: {'ENABLED' if STICKER_BLOCK else 'DISABLED'}\nUsage: /stickerban on|off")
 
 # ================= PROTECTION LOGIC ================= #
 
 def check_flood(user_id: int) -> bool:
-    """Check if user is flooding"""
     now = time.time()
-    _user_messages[user_id].append(now)
-    
-    # Remove old messages
-    while _user_messages[user_id] and now - _user_messages[user_id][0] > FLOOD_WINDOW:
-        _user_messages[user_id].popleft()
-    
-    return len(_user_messages[user_id]) > FLOOD_LIMIT
+    q = _user_messages[user_id]
+    q.append(now)
+    while now - q[0] > FLOOD_WINDOW:
+        q.popleft()
+    return len(q) > FLOOD_LIMIT
 
 @app.on_message(filters.group & (filters.text | filters.caption))
 @app.on_edited_message(filters.group & (filters.text | filters.caption))
@@ -207,7 +200,7 @@ async def message_protection(client: Client, msg: Message):
     if msg.from_user.id in APPROVED_USERS[msg.chat.id] or await is_admin(client, msg.chat.id, msg.from_user.id):
         return
     
-    # Handle edited messages
+    # Delete edited messages
     if msg.edit_date:
         await msg.delete()
         await log_event(client, "Deleted edited message", msg)
@@ -215,20 +208,22 @@ async def message_protection(client: Client, msg: Message):
     
     text = (msg.text or msg.caption or "").lower()
     
+    # Keyword check
     if any(kw in text for kw in FORBIDDEN_KEYWORDS):
         await msg.delete()
-        await log_event(client, "Deleted message with forbidden keyword", msg)
+        await log_event(client, "Deleted forbidden content", msg)
         return
     
+    # Link check
     if re.search(r"https?://", text):
         await msg.delete()
-        await log_event(client, "Deleted message with link", msg)
+        await log_event(client, "Deleted link", msg)
         return
     
+    # Flood check
     if check_flood(msg.from_user.id):
         await msg.delete()
-        await log_event(client, "Deleted flood message", msg)
-        return
+        await log_event(client, "Deleted flood", msg)
 
 @app.on_message(filters.sticker & filters.group)
 async def sticker_handler(client: Client, msg: Message):
@@ -237,5 +232,5 @@ async def sticker_handler(client: Client, msg: Message):
         await log_event(client, "Deleted sticker", msg)
 
 if __name__ == "__main__":
-    logger.info("Starting protection bot...")
+    logger.info("Starting SFW Protection Bot...")
     app.run()
