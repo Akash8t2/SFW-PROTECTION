@@ -59,7 +59,6 @@ async def is_admin(client: Client, chat_id: int, user_id: int) -> bool:
         member = await client.get_chat_member(chat_id, user_id)
         logger.info(f"Admin Check Result: {member}")
         
-        # Handle all admin types
         return any([
             member.status in ("creator", "administrator"),
             getattr(member, "is_anonymous", False),
@@ -199,12 +198,12 @@ def check_flood(user_id: int) -> bool:
     
     return len(_user_messages[user_id]) > FLOOD_LIMIT
 
-@app.on_message(filters.group & (filters.text | filters.caption | filters.edited))
+@app.on_message(filters.group & (filters.text | filters.caption))
+@app.on_edited_message(filters.group & (filters.text | filters.caption))
 async def message_protection(client: Client, msg: Message):
     if not enabled_protection or msg.from_user.is_bot:
         return
     
-    # Skip if approved user or admin
     if msg.from_user.id in APPROVED_USERS[msg.chat.id] or await is_admin(client, msg.chat.id, msg.from_user.id):
         return
     
@@ -216,19 +215,16 @@ async def message_protection(client: Client, msg: Message):
     
     text = (msg.text or msg.caption or "").lower()
     
-    # Check forbidden keywords
     if any(kw in text for kw in FORBIDDEN_KEYWORDS):
         await msg.delete()
         await log_event(client, "Deleted message with forbidden keyword", msg)
         return
     
-    # Check links
     if re.search(r"https?://", text):
         await msg.delete()
         await log_event(client, "Deleted message with link", msg)
         return
     
-    # Check flood
     if check_flood(msg.from_user.id):
         await msg.delete()
         await log_event(client, "Deleted flood message", msg)
