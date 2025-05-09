@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 FLOOD_LIMIT = 5
 FLOOD_WINDOW = 10
 FORBIDDEN_KEYWORDS = [
-    "porn", "xxx", "sex", "ncert", "xii", "page", "ans",
+    "porn", "xxx", "sex", "ncert", "xii", "page", "Madarchod", "Benchod", "Tmkc", 
     "meiotic", "divisions", "system.in", "scanner", "void",
     "nextint", "fuck", "nude", "class 12", "exam leak"
 ]
